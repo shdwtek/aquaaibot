@@ -1,21 +1,20 @@
-const got = require('got');
+require('dotenv').config();
+const { Configuration, OpenAIApi } = require("openai");
 
-async function generate(prompt) {
-  const url = 'https://api.openai.com/v1/engines/davinci/completions';
-  const params = {
-//    "model": "text-davinci-002",
-    "prompt": prompt,
-    "max_tokens": 160,
-    "temperature": 0.7,
-    "frequency_penalty": 0.5
-  };
-  const headers = {
-    'Authorization': `Bearer ${process.env.OPENAI_SECRET_KEY}`,
-  };
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
-  const response = await got.post(url, { json: params, headers: headers }).json();
-  output = `${prompt}${response.choices[0].text}`;
-  return output;
+async function generate(promptText) {
+  const completion = await openai.createCompletion({
+    model: process.env.OPENAI_MODEL,
+    prompt: promptText,
+    max_tokens: parseInt(process.env.OPENAI_MAX_TOKENS),
+    temperature: parseFloat(process.env.OPENAI_TEMPERATURE),
+    frequency_penalty: parseFloat(process.env.OPENAI_FREQ_PENALTY),
+  });
+  return completion.data.choices[0].text;
 }
 
 module.exports = { generate };

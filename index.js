@@ -1,7 +1,7 @@
 const tmi = require('tmi.js');
 const generator = require('./textGenerator');
 
-const reputation ={};
+const reputation = {};
 const client = new tmi.Client({
   options: { debug: true },
   connection: {
@@ -9,10 +9,10 @@ const client = new tmi.Client({
     reconnect: true
   },
   identity: {
-    username: 'aquaaibot',
+    username: process.env.TWITCH_BOT_USERNAME,
     password: process.env.TWITCH_OAUTH_TOKEN
   },
-  channels: [ 'shdwtek' ]
+  channels: process.env.TWITCH_CHANNELS_TO_JOIN.split(',')
 });
 
 client.connect();
@@ -25,10 +25,12 @@ client.on('message', (channel, tags, message, self) => {
   const args = message.slice(1).split(' ');
   const command = args.shift().toLowerCase();
 
-    if(command === 'aquaaibot') {
+  if(command === process.env.TWITCH_BOT_USERNAME) {
     (async () => {
-      const prompt = args.join(' ');
-      client.say(channel, `@${tags.username}, ${await generator.generate(prompt)}`);
+      var promptText = process.env.OPENAI_PROMPT
+        .replace(/\{botname\}/g, tags['display-name'])
+        .replace('{message}', args.join(' '));
+      client.say(channel, `@${tags.username}, ${await generator.generate(promptText)}`);
     })();
   }
 });
