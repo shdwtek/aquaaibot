@@ -29,7 +29,11 @@ client.on('message', (channel, tags, message, self) => {
     (async () => {
       var promptText = process.env.OPENAI_PROMPT
         .replace(/\{botname\}/g, tags['display-name'])
-        .replace('{message}', args.join(' '));
+        .replace('{message}', args.join(' ')).trim();
+      // Add a period if necessary so the bot doesn't try to complete the prompt.
+      if (!['.','?'].includes(promptText.slice(-1))) {
+        promptText = `${promptText}.}`;
+      }
       client.say(channel, `@${tags.username}, ${await generator.generate(promptText)}`);
     })();
   }
