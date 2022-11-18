@@ -47,7 +47,7 @@ client.on('message', (channel, tags, message, self) => {
   if(command === process.env.TWITCH_BOT_USERNAME) {
     (async () => {
       var tankTemp = await doRequest('http://shdwtek.net/temp.html');
-      tankTemp = tankTemp.replace(/<[^>]+>/g, ' ').trim().replace(/ +/, ' ');
+      tankTemp = tankTemp.replace(/<[^>]+>/g, ' ').trim().replace(/ +/, ' ').slice(0, 5);
       var promptText = process.env.OPENAI_PROMPT
         .replace(/\{botname\}/g, tags['display-name'])
         .replace('{message}', args.join(' ')).trim()
